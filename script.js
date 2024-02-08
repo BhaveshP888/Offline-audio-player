@@ -55,7 +55,7 @@ function playNext() {
 // Add other functions 
 
 // Hook up buttons
-playBtn.addEventListener('click', playNext); 
+playBtn.addEventListener('click', playTrack); 
 prevBtn.addEventListener('click', playPrev);
 // etc
 
