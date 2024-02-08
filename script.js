@@ -1,61 +1,38 @@
+const audioInput = document.getElementById("audio-input");
+const audioList = document.getElementById("audio-list");
+const audioElement = document.getElementById("audio-element");
+const audioFiles = [];
+// Add selected files to list
+audioInput.addEventListener("change", function () {
+  // Add selected files to array
+  for (const file of this.files) {
+    audioFiles.push(file);
+  }
 
-// Select DOM elements
-const folderInput = document.querySelector('#folder-input');
-const audioList = document.querySelector('#audio-list');
-const audioPlayer = document.querySelector('#audio-player');
+  // Render audio file list
+  renderAudioList(audioFiles);
+});
 
-// Track list and current track index
-let tracks = [];
-let currentIndex = 0; 
+function renderAudioList(audioFiles) {
+  
+  // Clear list
+  audioList.innerHTML = "";
 
-// Load audio files
-folderInput.addEventListener('change', loadFiles);
-
-function loadFiles(event) {
-  audioList.innerHTML = '';
-  tracks = [];
-
-  for(const file of event.target.files) {
-    const listItem = createListItem(file);
-    audioList.appendChild(listItem);
-
-    tracks.push({
-      name: file.name,
-      url: URL.createObjectURL(file)
-    });
+  // Loop through array and add to list
+  for (const file of audioFiles) {
+    const li = document.createElement("li");
+    li.textContent = file.title;
+    audioList.appendChild(li);
   }
 }
-
-// Create list item 
-function createListItem(file) {
-  const listItem = document.createElement('li');
-  listItem.textContent = file.name;
-  listItem.addEventListener('click', playTrack);
-
-  return listItem;
-}
-
-// Play a track
-function playTrack(event) {
-  currentIndex = tracks.indexOf(event.currentTarget.track);  
-  audioPlayer.src = tracks[currentIndex].url;
-  audioPlayer.play(); 
-}
-
-// Play next track
-function playNext() {
-  currentIndex++;
-  if (currentIndex >= tracks.length) {
-    currentIndex = 0;
+// Play clicked audio
+audioList.addEventListener("click", function (e) {
+  if (e.target.tagName === "LI") {
+    const file = e.target.textContent;
+    const src = URL.createObjectURL(
+      audioInput.files[Array.from(audioList.children).indexOf(e.target)]
+    );
+    audioElement.src = src;
+    audioElement.play();
   }
-  playTrack(tracks[currentIndex]);
-}
-
-// Play previous track  
-// Add other functions 
-
-// Hook up buttons
-playBtn.addEventListener('click', playTrack); 
-prevBtn.addEventListener('click', playPrev);
-// etc
-
+});

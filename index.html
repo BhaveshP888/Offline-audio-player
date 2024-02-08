@@ -1,32 +1,92 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
-    <title>Document</title>
+    <title>Custom Audio Player</title>
+    <style>
+        #playlist {
+            list-style: none;
+        }
+
+        #playlist li {
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        #playlist li.active {
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-    <button id="theme-toggle">Toggle Theme</button>
+<input type="file" id="audioFiles" accept="audio/*" multiple />
 
-    
-  <input type="file" id="folder-input" webkitdirectory mozdirectory msdirectory odirectory directory multiple />
+<ul id="playlist"></ul>
 
-
-
-  
-  <ol id="audio-list"></ol>
-
-  <audio id="audio-player" class="player" controls></audio>
-  <button id="prev">Prev</button> 
+<audio controls id="audioPlayer" autoplay></audio>
+<button id="prev">Prev</button>
 <button id="next">Next</button>
+<button id="repeat">Repeat</button>
 
-  <button id="repeat">Repeat</button>
-<button id="repeat-one">Repeat One</button>
+<script>
+    const audioInput = document.getElementById('audioFiles');
+    const audioPlayer = document.getElementById('audioPlayer');
+    const playlist = document.getElementById('playlist');
+    let audioFiles = [];
+    const repeatButton = document.getElementById('repeat');
+    let repeat = false;
+
+    audioInput.addEventListener('change', function(event) {
+        const files = event.target.files;
+        audioFiles = Array.from(files);
+        playlist.innerHTML = '';
+        
+        audioFiles.forEach((file, i) => {
+            const listItem = document.createElement('li');
+            listItem.textContent = file.name;
+            listItem.dataset.index = i;
+
+            listItem.addEventListener('click', function() {
+                playTrack(parseInt(this.dataset.index));
+            });
+
+            playlist.appendChild(listItem);
+        });
+    });
+
+    function playTrack(index) {
+        if (index < 0 || index >= audioFiles.length) return;
+        const file = audioFiles[index];   
+        audioPlayer.src = URL.createObjectURL(file);
+
+        const listItems = Array.from(playlist.children);
+        listItems.forEach(item => item.classList.remove('active'));
+        listItems[index].classList.add('active');
+    }
+
+    document.getElementById('next').addEventListener('click', function() {
+        let activeIndex = Array.from(playlist.children).findIndex(li => li.classList.contains('active'));
+        playTrack(activeIndex + 1);
+    });
+
+    document.getElementById('prev').addEventListener('click', function() {
+        let activeIndex = Array.from(playlist.children).findIndex(li => li.classList.contains('active'));
+        playTrack(activeIndex - 1);
+    });
+
+    repeatButton.addEventListener('click', function() {
+  repeat = !repeat;
+  repeatButton.textContent = repeat ? 'Repeat On' : 'Repeat Off'; 
+});
+
+audioPlayer.addEventListener('ended', function() {
+  let activeIndex = Array.from(playlist.children).findIndex(li => li.classList.contains('active'));
+  if (repeat) {
+    playTrack(activeIndex);
+  } else {
+    playTrack(activeIndex + 1);
+  }
+});
 
 
-  <script src="script.js" defer>
-
-  </script>
+</script>
 </body>
 </html>
